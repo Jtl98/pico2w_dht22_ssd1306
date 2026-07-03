@@ -35,3 +35,15 @@ cp build/pico2w_dht22_ssd1306.uf2 <path/to/pico>
 ```
 cat /dev/serial/by-id/<pico>
 ```
+
+## datasheets
+
+- dht22
+  - [datasheets/DHT22.pdf](datasheets/DHT22.pdf)
+  - https://core-electronics.com.au/attachments/DHT22.pdf
+
+## sketches
+
+### pico2w-dht22
+
+![pico2w-dht22](sketches/pico2w-dht22.png)
