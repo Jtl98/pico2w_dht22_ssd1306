@@ -41,9 +41,16 @@ cat /dev/serial/by-id/<pico>
 - dht22
   - [datasheets/DHT22.pdf](datasheets/DHT22.pdf)
   - https://core-electronics.com.au/attachments/DHT22.pdf
+- ssd1306
+  - [datasheets/SSD1306.pdf](datasheets/SSD1306.pdf)
+  - https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf
 
 ## sketches
 
 ### pico2w-dht22
 
 ![pico2w-dht22](sketches/pico2w-dht22.png)
+
+### pico2w-dht22-ssd1306
+
+![pico2w-dht22-ssd1306](sketches/pico2w-dht22-ssd1306.png)
