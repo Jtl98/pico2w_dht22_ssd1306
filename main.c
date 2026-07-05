@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "dht.h"
+#include "dht22.h"
 
-const uint DHT_GPIO = 16;
+const uint DHT_GPIO = 15;
 
 int main()
 {
     stdio_init_all();
-    gpio_init(DHT_GPIO);
-    dht_init();
+    dht_init(DHT_GPIO);
 
     while (true)
     {

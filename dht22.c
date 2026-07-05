@@ -1,4 +1,4 @@
-#include "dht.h"
+#include "dht22.h"
 #include <stdio.h>
 
 // datasheet: file:///./datasheets/DHT22.pdf
@@ -90,9 +90,11 @@ static bool parse_data(uint8_t data[5], dht_reading *reading)
     return true;
 }
 
-// 6.1: "When power is supplied to sensor, don't send any instruction to the sensor within one second to pass unstable status."
-void dht_init()
+void dht_init(const uint gpio)
 {
+    gpio_init(gpio);
+
+    // 6.1: "When power is supplied to sensor, don't send any instruction to the sensor within one second to pass unstable status."
     sleep_ms(1000);
 }
 
@@ -109,8 +111,8 @@ bool dht_read(const uint gpio, dht_reading *reading)
     return parse_data(data, reading);
 }
 
-// 7: "Collecting period should be : >2 second."
 void dht_wait()
 {
+    // 7: "Collecting period should be : >2 second."
     sleep_ms(3000);
 }
