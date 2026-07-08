@@ -7,10 +7,10 @@ typedef struct
 {
     float humidity;
     float temperature;
-} dht_reading;
+} dht22_reading;
 
-void dht_init(const uint gpio);
-bool dht_read(const uint gpio, dht_reading *reading);
-void dht_wait();
+void dht22_init(const uint gpio);
+bool dht22_read(const uint gpio, dht22_reading *reading);
+void dht22_wait();
 
 #endif
