@@ -12,14 +12,18 @@ static const uint8_t ADDRESS = 0b0111100;
 static const uint8_t COMMAND_CONTROL_BYTE = 0b10000000;
 static const uint8_t DATA_CONTROL_BYTE = 0b01000000;
 
-// 9-1
+// 9-1 (table 1)
 static const uint8_t ENTIRE_DISPLAY_ON_FOLLOW_RAM = 0xA4;
 static const uint8_t ENTIRE_DISPLAY_ON_IGNORE_RAM = 0xA5;
 static const uint8_t SET_DISPLAY_OFF = 0xAE;
 static const uint8_t SET_DISPLAY_ON = 0xAF;
 
+// 9-1 (table 3)
+static const uint8_t SET_MEMORY_ADDRESSING_MODE = 0x20;
+static const uint8_t HORIZONTAL_ADDRESSING_MODE = 0b00;
+
 // Application Note - 2.1
-static const uint8_t CHARGE_PUMP_SETTING = 0x8D;
+static const uint8_t SET_CHARGE_PUMP_SETTING = 0x8D;
 static const uint8_t ENABLE_CHARGE_PUMP = 0x14;
 
 static void send_command(i2c_inst_t *i2c, uint8_t command)
@@ -40,10 +44,12 @@ void ssd1306_init(uint i2c_number, uint sda_gpio, uint scl_gpio)
     gpio_pull_up(scl_gpio);
 
     uint8_t commands[] = {
-        SET_DISPLAY_OFF,     // set display off before configuration
-        CHARGE_PUMP_SETTING, // allow changing charge pump setting
-        ENABLE_CHARGE_PUMP,  // enable charge pump
-        SET_DISPLAY_ON       // set display on after configuration
+        SET_DISPLAY_OFF,            // set display off before configuration
+        SET_MEMORY_ADDRESSING_MODE, // allow changing memory addressing mode
+        HORIZONTAL_ADDRESSING_MODE, // change memory addressing mode to horizontal
+        SET_CHARGE_PUMP_SETTING,    // allow changing charge pump setting
+        ENABLE_CHARGE_PUMP,         // change charge pump setting to enabled
+        SET_DISPLAY_ON              // set display on after configuration
     };
 
     for (size_t i = 0; i < count_of(commands); i++)
