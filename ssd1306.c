@@ -1,4 +1,5 @@
 #include "ssd1306.h"
+#include <string.h>
 #include "hardware/i2c.h"
 
 // datasheet: file:///./datasheets/SSD1306.pdf
@@ -31,6 +32,17 @@ static void send_command(i2c_inst_t *i2c, uint8_t command)
     uint8_t buffer[2] = {COMMAND_CONTROL_BYTE, command};
 
     i2c_write_blocking(i2c, ADDRESS, buffer, 2, false);
+}
+
+static void send_data(const i2c_inst_t *i2c, const uint8_t data[], const size_t data_size)
+{
+    const size_t buffer_size = data_size + 1;
+    uint8_t buffer[buffer_size];
+
+    buffer[0] = DATA_CONTROL_BYTE;
+    memcpy(buffer + 1, data, data_size);
+
+    i2c_write_blocking(i2c, ADDRESS, buffer, buffer_size, false);
 }
 
 void ssd1306_init(uint i2c_number, uint sda_gpio, uint scl_gpio)
