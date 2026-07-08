@@ -5,7 +5,7 @@
 
 const uint DHT22_GPIO = 15;
 const uint SSD1306_I2C_NUMBER = 0;
-const uint SSD1306_SDA_GPIO = 15;
+const uint SSD1306_SDA_GPIO = 16;
 const uint SSD1306_SCL_GPIO = 17;
 
 int main()
