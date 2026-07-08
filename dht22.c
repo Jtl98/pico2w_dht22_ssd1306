@@ -61,7 +61,7 @@ static void read_data(const uint gpio, uint8_t data[5])
     }
 }
 
-static bool parse_data(uint8_t data[5], dht_reading *reading)
+static bool parse_data(uint8_t data[5], dht22_reading *reading)
 {
     // 6.2: "check-sum should be the last 8 bit of "8 bit integral RH data+8 bit decimal RH data+8 bit integral T data+8 bit decimal T data"."
     const uint8_t checksum = ((data[0] + data[1] + data[2] + data[3]) & 0xFF);
@@ -90,7 +90,7 @@ static bool parse_data(uint8_t data[5], dht_reading *reading)
     return true;
 }
 
-void dht_init(const uint gpio)
+void dht22_init(const uint gpio)
 {
     gpio_init(gpio);
 
@@ -98,7 +98,7 @@ void dht_init(const uint gpio)
     sleep_ms(1000);
 }
 
-bool dht_read(const uint gpio, dht_reading *reading)
+bool dht22_read(const uint gpio, dht22_reading *reading)
 {
     send_start_signal(gpio);
 
@@ -111,7 +111,7 @@ bool dht_read(const uint gpio, dht_reading *reading)
     return parse_data(data, reading);
 }
 
-void dht_wait()
+void dht22_wait()
 {
     // 7: "Collecting period should be : >2 second."
     sleep_ms(3000);
