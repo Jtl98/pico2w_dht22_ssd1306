@@ -27,14 +27,14 @@ static const uint8_t HORIZONTAL_ADDRESSING_MODE = 0b00;
 static const uint8_t SET_CHARGE_PUMP_SETTING = 0x8D;
 static const uint8_t ENABLE_CHARGE_PUMP = 0x14;
 
-static void send_command(i2c_inst_t *i2c, uint8_t command)
+static void send_command(i2c_inst_t *i2c, const uint8_t command)
 {
-    uint8_t buffer[2] = {COMMAND_CONTROL_BYTE, command};
+    const uint8_t buffer[2] = {COMMAND_CONTROL_BYTE, command};
 
     i2c_write_blocking(i2c, ADDRESS, buffer, 2, false);
 }
 
-static void send_data(const i2c_inst_t *i2c, const uint8_t data[], const size_t data_size)
+static void send_data(i2c_inst_t *i2c, const uint8_t data[], const size_t data_size)
 {
     const size_t buffer_size = data_size + 1;
     uint8_t buffer[buffer_size];
@@ -45,7 +45,7 @@ static void send_data(const i2c_inst_t *i2c, const uint8_t data[], const size_t 
     i2c_write_blocking(i2c, ADDRESS, buffer, buffer_size, false);
 }
 
-void ssd1306_init(uint i2c_number, uint sda_gpio, uint scl_gpio)
+void ssd1306_init(const uint i2c_number, const uint sda_gpio, const uint scl_gpio)
 {
     i2c_inst_t *i2c = i2c_get_instance(i2c_number);
     i2c_init(i2c, BAUD_RATE);
@@ -55,7 +55,7 @@ void ssd1306_init(uint i2c_number, uint sda_gpio, uint scl_gpio)
     gpio_pull_up(sda_gpio);
     gpio_pull_up(scl_gpio);
 
-    uint8_t commands[] = {
+    const uint8_t commands[] = {
         SET_DISPLAY_OFF,            // set display off before configuration
         SET_MEMORY_ADDRESSING_MODE, // allow changing memory addressing mode
         HORIZONTAL_ADDRESSING_MODE, // change memory addressing mode to horizontal
@@ -68,7 +68,7 @@ void ssd1306_init(uint i2c_number, uint sda_gpio, uint scl_gpio)
         send_command(i2c, commands[i]);
 }
 
-void ssd1306_flash(uint i2c_number)
+void ssd1306_flash(const uint i2c_number)
 {
     i2c_inst_t *i2c = i2c_get_instance(i2c_number);
 

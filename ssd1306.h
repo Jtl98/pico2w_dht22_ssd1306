@@ -3,7 +3,7 @@
 
 #include "pico/stdlib.h"
 
-void ssd1306_init(uint i2c_number, uint sda_gpio, uint scl_gpio);
-void ssd1306_flash(uint i2c_number);
+void ssd1306_init(const uint i2c_number, const uint sda_gpio, const uint scl_gpio);
+void ssd1306_flash(const uint i2c_number);
 
 #endif
