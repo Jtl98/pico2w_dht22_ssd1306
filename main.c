@@ -20,9 +20,15 @@ int main()
 
         dht22_reading reading;
         if (dht22_read(DHT22_GPIO, &reading))
-            printf("humidity: %.1f%%, temperature: %.1fC\n", reading.humidity, reading.temperature);
+        {
+            // 100.0% + newline + -40.0C + NUL = max of 14 bytes
+            char text[14];
+            snprintf(text, sizeof(text), "%.1f%%\n%.1fC", reading.humidity, reading.temperature);
 
-        ssd1306_flash(SSD1306_I2C_NUMBER);
+            ssd1306_display_text(SSD1306_I2C_NUMBER, text);
+
+            printf("humidity: %.1f%%, temperature: %.1fC\n", reading.humidity, reading.temperature);
+        }
 
         dht22_wait();
     }

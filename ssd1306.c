@@ -1,4 +1,5 @@
 #include "ssd1306.h"
+#include <stdio.h>
 #include <string.h>
 #include "hardware/i2c.h"
 
@@ -50,6 +51,52 @@ static const uint8_t FIRST_COLUMN = 0;
 static const uint8_t LAST_COLUMN = TOTAL_COLUMNS - 1;
 static const uint8_t FIRST_PAGE = 0;
 static const uint8_t LAST_PAGE = TOTAL_PAGES - 1;
+
+/*
+8-14
+0b01111111 displays the following segment:
+
+1 = least significant bit
+1
+1
+1
+1
+1
+1
+0 = most significant bit
+*/
+#define CHARACTER_WIDTH 5
+static const uint8_t SPACED_CHARACTER_WIDTH = CHARACTER_WIDTH + 1;
+static const uint8_t C[CHARACTER_WIDTH] = {0b01111111, 0b01000001, 0b01000001, 0b01000001, 0b01000001};
+static const uint8_t HYPHEN[CHARACTER_WIDTH] = {0b00001000, 0b00001000, 0b00001000, 0b00001000, 0b00001000};
+static const uint8_t PERCENT[CHARACTER_WIDTH] = {0b00100001, 0b00010000, 0b00001000, 0b00000100, 0b01000010};
+static const uint8_t PERIOD[CHARACTER_WIDTH] = {0b00000000, 0b00000000, 0b01000000, 0b00000000, 0b00000000};
+static const uint8_t DIGITS[][CHARACTER_WIDTH] = {
+    {0b01111111, 0b01000001, 0b01000001, 0b01000001, 0b01111111}, // 0
+    {0b00000000, 0b00000000, 0b01111111, 0b00000000, 0b00000000}, // 1
+    {0b01111001, 0b01001001, 0b01001001, 0b01001001, 0b01001111}, // 2
+    {0b01001001, 0b01001001, 0b01001001, 0b01001001, 0b01111111}, // 3
+    {0b00001111, 0b00001000, 0b00001000, 0b00001000, 0b01111111}, // 4
+    {0b01001111, 0b01001001, 0b01001001, 0b01001001, 0b01111001}, // 5
+    {0b01111111, 0b01001001, 0b01001001, 0b01001001, 0b01111001}, // 6
+    {0b00000001, 0b00000001, 0b00000001, 0b00000001, 0b01111111}, // 7
+    {0b01111111, 0b01001001, 0b01001001, 0b01001001, 0b01111111}, // 8
+    {0b01001111, 0b01001001, 0b01001001, 0b01001001, 0b01111111}, // 9
+};
+
+static void get_character_bytes(const char character, uint8_t bytes[CHARACTER_WIDTH])
+{
+    if (character == 'C')
+        memcpy(bytes, C, CHARACTER_WIDTH);
+    else if (character == '-')
+        memcpy(bytes, HYPHEN, CHARACTER_WIDTH);
+    else if (character == '%')
+        memcpy(bytes, PERCENT, CHARACTER_WIDTH);
+    else if (character == '.')
+        memcpy(bytes, PERIOD, CHARACTER_WIDTH);
+    else if (character >= '0' && character <= '9')
+        memcpy(bytes, DIGITS[character - '0'], CHARACTER_WIDTH);
+}
 
 static void create_data_info(data_info *info, const uint8_t start_column, const uint8_t end_column, const uint8_t start_page, const uint8_t end_page)
 {
@@ -122,38 +169,41 @@ void ssd1306_init(const uint i2c_number, const uint sda_gpio, const uint scl_gpi
     send_commands(i2c, commands, count_of(commands));
 }
 
-void ssd1306_flash(const uint i2c_number)
+void ssd1306_display_text(const uint i2c_number, const char text[])
 {
     i2c_inst_t *i2c = i2c_get_instance(i2c_number);
 
-    // blank entire display
     data_info info;
     create_data_info(&info, FIRST_COLUMN, LAST_COLUMN, FIRST_PAGE, LAST_PAGE);
 
     uint8_t data[info.size];
     memset(data, 0, info.size);
 
-    display_data(i2c, data, &info);
+    uint8_t page = 0;
+    uint16_t offset = 0;
+    uint8_t segment = 0;
 
-    // flash entire display
-    send_command(i2c, ENTIRE_DISPLAY_ON_IGNORE_RAM);
-    sleep_ms(500);
-    send_command(i2c, ENTIRE_DISPLAY_ON_FOLLOW_RAM);
-    sleep_ms(500);
+    const size_t text_size = strlen(text);
+    for (size_t i = 0; i < text_size; i++)
+    {
+        const char character = text[i];
 
-    const uint16_t half_size = info.size / 2;
+        if (character == '\n')
+        {
+            page++;
+            offset = page * TOTAL_COLUMNS;
+            segment = 0;
+            continue;
+        }
 
-    // light up top half of display
-    memset(data, 255, half_size);
-    memset(data + half_size, 0, half_size);
+        uint8_t bytes[CHARACTER_WIDTH] = {0};
+        get_character_bytes(character, bytes);
 
-    display_data(i2c, data, &info);
+        const uint16_t data_index = offset + segment;
+        memcpy(data + data_index, bytes, CHARACTER_WIDTH);
 
-    sleep_ms(500);
-
-    // light up bottom half of display
-    memset(data, 0, half_size);
-    memset(data + half_size, 255, half_size);
+        segment += SPACED_CHARACTER_WIDTH;
+    }
 
     display_data(i2c, data, &info);
 }
