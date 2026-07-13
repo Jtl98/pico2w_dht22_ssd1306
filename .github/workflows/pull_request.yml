@@ -1,0 +1,26 @@
+name: pr
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: install
+        run: |
+          sudo apt-get update
+          # from https://github.com/raspberrypi/pico-sdk#unix-command-line
+          sudo apt-get install cmake python3 build-essential gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+
+      - name: generate buildsystem
+        run: cmake -B build -S .
+
+      - name: build
+        run: cmake --build build --target pico2w_dht22_ssd1306
